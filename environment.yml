@@ -1,0 +1,8 @@
+name: hornero
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - pip
+  - setuptools
+  - setuptools_scm
