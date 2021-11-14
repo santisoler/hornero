@@ -6,3 +6,4 @@ dependencies:
   - pip
   - setuptools
   - setuptools_scm
+  - click
