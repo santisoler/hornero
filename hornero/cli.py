@@ -3,8 +3,7 @@ Build a CLI for hornero
 """
 import click
 
-from .yml_parser import get_packages
-from .utils import check_categories, check_cli_options
+from .utils import check_categories, get_packages
 
 
 @click.command()
@@ -48,3 +47,13 @@ def cli(packages_yml, list_categories, categories):
         packages_selection.extend(packages[category])
     click.echo("\n".join(packages_selection))
     return 0
+
+
+def check_cli_options(list_categores, categories):
+    """
+    Check if only a single option is passed to the cli
+    """
+    if list_categores and categories:
+        raise ValueError(
+            "Only a single option should be passed at the same time.",
+        )
