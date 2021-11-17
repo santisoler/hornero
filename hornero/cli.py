@@ -3,7 +3,7 @@ Build a CLI for hornero
 """
 import click
 
-from .utils import check_categories, get_packages
+from .utils import check_categories, get_packages, read_yaml
 
 
 @click.command()
@@ -29,7 +29,7 @@ def cli(packages_yml, list_categories, categories):
     check_cli_options(list_categories, categories)
 
     # Parse the packages YAML file
-    packages = get_packages(packages_yml)
+    packages = get_packages(read_yaml(packages_yml))
 
     # List categories if list_categores is True
     if list_categories:

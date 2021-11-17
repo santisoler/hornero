@@ -4,14 +4,14 @@ Utility functions for Hornero
 import yaml
 
 
-def get_packages(yaml_file):
+def get_packages(packages_raw):
     """
-    Build a dict with categories and their packages from the packages YAML file
+    Build a dict with categories and their packages
 
     Parameters
     ----------
-    yaml_file : str or PathLike
-        Path to the YAML file.
+    packages_raw : dict
+        Dictionary with the content of the packages YAML file.
 
     Returns
     -------
@@ -19,7 +19,6 @@ def get_packages(yaml_file):
         Dictionary with the categories and their corresponding packages as
         lists.
     """
-    packages_raw = read_yaml(yaml_file)
     packages = {category: [] for category in packages_raw}
     for category, packages_list in packages_raw.items():
         for package in packages_list:
