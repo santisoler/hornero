@@ -3,6 +3,16 @@ Utility functions
 """
 
 
+def check_cli_options(list_categores, categories):
+    """
+    Check if only a single option is passed to the cli
+    """
+    if list_categores and categories:
+        raise ValueError(
+            "Only a single option should be passed at the same time.",
+        )
+
+
 def check_categories(packages, categories):
     """
     Check if selected categories are available in the packages dict
