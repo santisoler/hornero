@@ -1,0 +1,9 @@
+# Sample packages YAML file for running tests
+basic:
+  - package-one
+  - package-two
+
+complex:
+  - package-three
+  - package-four
+  - package-five
