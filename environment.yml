@@ -2,10 +2,11 @@ name: hornero
 channels:
   - conda-forge
 dependencies:
-  - python
+  - python=3.9
   - pip
   - setuptools
   - setuptools_scm
-  - click
   - pyyaml
+  - click
   - pytest
+  - inquirer
