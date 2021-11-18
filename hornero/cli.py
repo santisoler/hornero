@@ -42,13 +42,18 @@ def cli(packages_yml, list_categories, categories, interactive):
     if list_categories:
         # List categories if list_categores is True
         click.echo("\n".join(packages.keys()))
-        return 0
+        return
     elif interactive:
         # Run interatively
-        categories = interactive_choices(packages)
+        categories, outfile = interactive_cli(packages)
         packages_selection = select_packages(packages, categories)
+        click.echo("\nSelected packages:")
+        click.echo("==================\n")
         click.echo("\n".join(packages_selection))
-        return 0
+        if outfile:
+            with open(outfile, "w") as selection_file:
+                selection_file.write("\n".join(packages_selection))
+        return
     else:
         # Generate categories if not passed
         if not categories:
@@ -56,10 +61,19 @@ def cli(packages_yml, list_categories, categories, interactive):
         check_categories(packages, categories)
         packages_selection = select_packages(packages, categories)
         click.echo("\n".join(packages_selection))
-        return 0
+        return
 
 
-def interactive_choices(packages):
+def interactive_cli(packages):
+    """
+    Build the interative cli
+    """
+    categories = interative_selection_categories(packages)
+    outfile = interactive_save_to_file()
+    return categories, outfile
+
+
+def interative_selection_categories(packages):
     """
     Return chosen categories from interative checkboxes
     """
@@ -68,11 +82,38 @@ def interactive_choices(packages):
             "categories",
             message="Choose categories of packages to be selected",
             choices=list(packages.keys()),
+        )
+    ]
+    categories = ()
+    while not categories:
+        answers = inquirer.prompt(questions, raise_keyboard_interrupt=True)
+        categories = answers["categories"]
+    return categories
+
+
+def interactive_save_to_file():
+    """
+    Define whether to save packages list to file from interactive cli
+    """
+    questions = [
+        inquirer.Confirm(
+            "dump_to_file",
+            message="Do you want me to save the list of selected packages "
+            + "in a file?",
+            default=False,
         ),
     ]
-
     answers = inquirer.prompt(questions, raise_keyboard_interrupt=True)
-    return answers["categories"]
+    outfile = answers["dump_to_file"]
+    if outfile:
+        questions = [
+            inquirer.Path(
+                "outfile", message="File name to store the list of selected packages"
+            ),
+        ]
+        answers = inquirer.prompt(questions, raise_keyboard_interrupt=True)
+        outfile = answers["outfile"]
+    return outfile
 
 
 def select_packages(packages, categories):
