@@ -2,10 +2,11 @@
 Test functions for hornero/utils.py
 """
 import os
-import pytest
 from pathlib import Path
 
-from ..utils import read_yaml, get_packages, check_package
+import pytest
+
+from ..utils import check_package, get_packages, read_yaml
 
 MODULE_DIR = Path(os.path.dirname(__file__))
 

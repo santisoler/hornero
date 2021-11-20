@@ -3,7 +3,7 @@ Define classes for wrapping different package managers
 """
 import os
 import subprocess
-import click
+
 import distro
 
 # Define dictionary matching linux distro to package manager classname
@@ -123,11 +123,6 @@ class PackageManager(object):
         self.update_option = update_option
         self.upgrade_option = upgrade_option
         self.install_option = install_option
-        self._lists_updated = False
-
-    @property
-    def lists_updated(self):
-        return self._lists_updated
 
     @property
     def sudo(self):
@@ -136,47 +131,29 @@ class PackageManager(object):
         """
         return os.getuid() != 0
 
-    def update(self):
+    def get_update_command(self):
         """
-        Update package lists
+        Return command for updating package lists
         """
-        command_line = self._build_command(self.update_option)
-        try:
-            self.run(command_line)
-        except Exception as e:
-            raise e
-        else:
-            self._lists_updated = True
+        return self._build_command(self.update_option)
 
-    def upgrade(self):
+    def get_upgrade_command(self):
         """
-        Update packages
+        Return command for upgrading installed package
         """
-        command_line = self._build_command(self.upgrade_option)
-        try:
-            self.run(command_line)
-        except Exception as e:
-            raise e
+        return self._build_command(self.upgrade_option)
 
-    def install(self, packages):
+    def get_install_command(self, packages):
         """
-        Install packages
+        Return command for installing a set of package
         """
-        command_line = self._build_command(self.upgrade_option, packages=packages)
-        try:
-            self.run(command_line)
-        except Exception as e:
-            raise e
+        return self._build_command(self.install_option, packages=packages)
 
-    def run(self, command_line, verbose=True):
+    def run(self, command):
         """
-        Run the given command line
+        Run the given command
         """
-        if verbose:
-            click.echo("\n :: Running:")
-            click.echo(command_line)
-            click.echo("")
-        subprocess.run(command_line, shell=True)
+        subprocess.run(command, shell=True)
 
     def _build_command(self, options, packages=None):
         """

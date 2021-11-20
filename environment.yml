@@ -6,8 +6,14 @@ dependencies:
   - pip
   - setuptools
   - setuptools_scm
-  - pyyaml
   - click
-  - pytest
-  - inquirer
   - distro
+  - pyyaml
+  - rich
+  - pip:
+      - pythondialog
+  # Development
+  - black
+  - flake8
+  - isort
+  - pytest
