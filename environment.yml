@@ -10,3 +10,4 @@ dependencies:
   - click
   - pytest
   - inquirer
+  - distro

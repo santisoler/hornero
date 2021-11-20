@@ -27,6 +27,28 @@ def get_packages(packages_raw):
     return packages
 
 
+def select_packages(packages, categories):
+    """
+    Select packages inside the chosen categories
+
+    Parameters
+    ----------
+    packages : dict
+        Dictionary with categories and their corresponding packages as lists.
+    categories : list
+        List containing the chosen categories
+
+    Returns
+    -------
+    packages_selection : list
+        List of packages that belong to the chosen categories
+    """
+    packages_selection = []
+    for category in categories:
+        packages_selection.extend(packages[category])
+    return packages_selection
+
+
 def read_yaml(yaml_file):
     """
     Read a YAML file
@@ -52,25 +74,3 @@ def check_package(package):
     """
     if len(package.split()) > 1:
         raise ValueError(f"Invalid package '{package}' found.")
-
-
-def check_categories(packages, categories):
-    """
-    Check if selected categories are available in the packages dict
-
-    Parameters
-    ----------
-    packages : dict
-        Dictionary with categories and their corresponding packages as lists.
-    categories : tuple
-        List of selected categories
-    """
-    invalid_categories = tuple(
-        category for category in categories if category not in packages.keys()
-    )
-    if invalid_categories:
-        invalid_categories = " ".join(invalid_categories)
-        raise ValueError(
-            f"Invalid categories: '{invalid_categories}'. "
-            + "These categories are not present in the packages file."
-        )

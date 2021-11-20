@@ -5,7 +5,7 @@ import os
 import pytest
 from pathlib import Path
 
-from ..utils import read_yaml, get_packages, check_package, check_categories
+from ..utils import read_yaml, get_packages, check_package
 
 MODULE_DIR = Path(os.path.dirname(__file__))
 
@@ -73,22 +73,3 @@ def test_check_package():
     """
     with pytest.raises(ValueError):
         check_package("package with multiple words")
-
-
-@pytest.mark.parametrize("categories", (["basic"], ["complex"], ["basic", "complex"]))
-def test_check_categories_valid(categories, sample_packages):
-    """
-    Test the check_categories function with valid categories
-    """
-    check_categories(sample_packages, categories)
-
-
-@pytest.mark.parametrize(
-    "categories", (["bla"], ["basic", "bla"], ["basic", "complex", "bla"])
-)
-def test_check_categories_invalid(categories, sample_packages):
-    """
-    Test the check_categories function with invalid categories
-    """
-    with pytest.raises(ValueError):
-        check_categories(sample_packages, categories)
