@@ -4,13 +4,19 @@ Build a CLI for hornero
 import click
 import inquirer
 
-from .managers import get_package_manager
+from .managers import get_package_manager, PACKAGE_MANAGERS
 from .utils import get_packages, read_yaml, select_packages
 
 
 @click.command()
 @click.argument("packages_yml")
-@click.option("-p", "--package_manager", default=None, type=str)
+@click.option(
+    "-p",
+    "--package_manager",
+    help="Select the package manager to use",
+    default=None,
+    type=click.Choice(PACKAGE_MANAGERS.keys()),
+)
 def cli(packages_yml, package_manager):
     """
     Hornero: A package selector for building your confy nest
