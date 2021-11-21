@@ -20,7 +20,7 @@ from .utils import get_packages, read_yaml, select_packages
 )
 def cli(packages_yml, package_manager):
     """
-    Hornero: A package selector for building your confy nest
+    Hornero: A package selector for building your comfy nest
     """
     # Parse the packages YAML file
     packages = get_packages(read_yaml(packages_yml))

@@ -1,5 +1,5 @@
 """
-Hornero: A package selector for building your confy nest.
+Hornero: A package selector for building your comfy nest.
 """
 from . import _version
 
