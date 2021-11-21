@@ -25,6 +25,9 @@ def cli(packages_yml, package_manager):
     # Parse the packages YAML file
     packages = get_packages(read_yaml(packages_yml))
 
+    # Get package manager
+    package_manager = get_package_manager(package_manager=package_manager)
+
     # Define rich console
     console = Console(stderr=False, highlight=False)
 
@@ -37,9 +40,6 @@ def cli(packages_yml, package_manager):
         console,
     )
     categories = checklist.ask()
-
-    # Get package manager
-    package_manager = get_package_manager(package_manager=package_manager)
 
     # Install the selected packages
     packages_selection = select_packages(packages, categories)

@@ -6,8 +6,7 @@ import subprocess
 
 import distro
 
-# Define dictionary matching linux distro to package manager classname
-# defined in settle/package_managers.py
+# Define dictionary matching linux distros to their package manager
 DISTROS_PACKAGE_MANAGERS = {
     "manjaro linux": "pacman",
     "arch": "pacman",
@@ -81,7 +80,7 @@ def guess_package_manager():
         raise ValueError(
             "Couldn't choose a package manager for your distro. "
             + "This may be caused because your distro is not supported or "
-            + "Settle cannot identify it properly. "
+            + "hornero cannot identify it properly. "
             + "Try specifying the package manager you want to use through the "
             + "--package-manager option."
         )
