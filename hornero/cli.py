@@ -2,8 +2,8 @@
 Build a CLI for hornero
 """
 import click
-from dialog import Dialog
 from rich.console import Console
+from rich.prompt import Prompt, Confirm
 
 from .managers import PACKAGE_MANAGERS, get_package_manager
 from .utils import get_packages, read_yaml, select_packages
@@ -25,67 +25,123 @@ def cli(packages_yml, package_manager):
     # Parse the packages YAML file
     packages = get_packages(read_yaml(packages_yml))
 
-    # Ask interactive questions through dialog
-    answers = interactive_dialog(packages)
-    click.clear()
+    # Define rich console
+    console = Console(stderr=False, highlight=False)
+
+    # Select which categories should be installed
+    checklist = Checklist(
+        "[bold green]Select packages to install[/bold green]",
+        "[bold cyan]Packages to install[/bold cyan] "
+        + "[bright_black](e.g 1 2 3)[/bright_black]",
+        list(packages.keys()),
+        console,
+    )
+    categories = checklist.ask()
 
     # Get package manager
     package_manager = get_package_manager(package_manager=package_manager)
 
-    console = Console(stderr=False, highlight=False)
-
-    # Update the list of packages
-    if answers["update"]:
-        command = package_manager.get_update_command()
-        print_section_heading(console, "Updating packages list", command)
-        package_manager.run(command)
-
-    # Upgrade the packages
-    if answers["upgrade"]:
-        command = package_manager.get_upgrade_command()
-        print_section_heading(console, "Upgrading packages", command, add_new_line=True)
-        package_manager.run(command)
-
     # Install the selected packages
-    packages_selection = select_packages(packages, answers["categories"])
+    packages_selection = select_packages(packages, categories)
     if packages_selection:
         command = package_manager.get_install_command(packages_selection)
-        print_section_heading(
-            console, "Installing selected packages", command, add_new_line=True
+        console.rule(
+            "[bold green]Installing selected packages[/bold green]", style="green bold"
         )
+        console.print()
+        console.print(f"$ {command}", style="blue")
         package_manager.run(command)
     return
 
 
-def interactive_dialog(packages):
+class Checklist:
     """
-    Ask questions through dialog
+    Simple interactive checklist through rich.console.Console
     """
-    height, width = 8, 60
-    answers = {}
-    dialog = Dialog(dialog="dialog")
-    code = dialog.yesno(
-        "Update packages lists from remote repositories?", height=height, width=width
-    )
-    answers["update"] = code == dialog.OK
-    code = dialog.yesno(
-        "Upgrade installed packages to latest version?", height=height, width=width
-    )
-    answers["upgrade"] = code == dialog.OK
-    _, tags = dialog.checklist(
-        "Choose categories of packages to be selected",
-        choices=[(pkg, "", False) for pkg in packages.keys()],
-    )
-    answers["categories"] = tags
-    return answers
+
+    def __init__(self, text, prompt_text, elements, console):
+        self.text = text
+        self.prompt_text = prompt_text
+        self.elements = elements
+        self.console = console
+        self.prompt = Prompt(console=console)
+        self.confirm = Confirm(console=console)
+
+    def ask(self):
+        """
+        Prompt the checklist and ask for selection of its elements
+        """
+        # Print title
+        self.console.rule(self.text)
+        while True:
+
+            # Print list of elements
+            self.console.print()
+            list_of_elements = [
+                f" [blue]{i+1:2d}[/blue] {item}" for i, item in enumerate(self.elements)
+            ]
+            self.console.print("\n".join(list_of_elements))
+            self.console.print()
+
+            # Ask for elements to be selected
+            answer = self.prompt.ask(self.prompt_text)
+
+            # Check if the answer contain integers
+            are_integers = [is_integer(i) for i in answer.split()]
+            if not all(are_integers):
+                self.console.print(
+                    "Invalid input: must pass a set of integers.\n", style="red"
+                )
+                continue
+
+            # Get indices from the answer
+            indices = [int(i) - 1 for i in answer.split()]
+
+            # Check if answers are within the range of the number of elements
+            min_index, max_index = min(indices), max(indices)
+            if min_index < 0:
+                self.console.print(
+                    f"Invalid value '{min_index + 1}'.\n",
+                    style="red",
+                )
+                continue
+            if max_index >= len(self.elements):
+                self.console.print(
+                    f"Invalid value '{max_index + 1}'.\n",
+                    style="red",
+                )
+                continue
+
+            # Get selected categories
+            selection = list(self.elements[i] for i in indices)
+
+            # Confirm if the selected categories are OK
+            self.console.print("\n[bold cyan]Your selection:[/bold cyan] ")
+            self.console.print()
+            list_of_elements = []
+            for i, item in enumerate(self.elements):
+                if item in selection:
+                    style = "bold green"
+                else:
+                    style = "bright_black"
+                list_of_elements.append(f" [{style}]{i+1:2d} {item}[/{style}]")
+            self.console.print("\n".join(list_of_elements))
+            self.console.print()
+            answer = self.confirm.ask(
+                "[bold cyan]Do you want to continue?[/bold cyan]", default=True
+            )
+            if answer:
+                break
+        return selection
 
 
-def print_section_heading(console, title, command, add_new_line=False):
+def is_integer(string):
     """
-    Use rich console to print a title for each section
+    Check if a given string can be converted to an integer
     """
-    if add_new_line:
-        console.print()
-    console.rule(f"{title}", style="green bold", characters="=")
-    console.print()
-    console.print(f"$ {command}", style="blue")
+    try:
+        int(string)
+    except ValueError:
+        return False
+    else:
+        return True
