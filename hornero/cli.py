@@ -1,6 +1,7 @@
 """
 Build a CLI for hornero
 """
+import sys
 import click
 from dialog import Dialog
 from rich.console import Console
@@ -53,13 +54,28 @@ def interactive_dialog(categories):
     Ask questions through dialog
     """
     dialog = Dialog(dialog="dialog")
+    defaults = [False for category in categories]
     while True:
-        _, selected_categories = dialog.checklist(
+        # Ask for categories selection
+        code, selected_categories = dialog.checklist(
             "Choose categories of packages to be installed",
-            choices=[(category, "", False) for category in categories],
+            choices=[
+                (category, "", default)
+                for category, default in zip(categories, defaults)
+            ],
             height=40,
             width=60,
         )
+        # If cancel, ask the user if they want to quit
+        if code == dialog.CANCEL:
+            quit = dialog.yesno("Do you want to quit?")
+            if quit == dialog.OK:
+                sys.exit()
+            else:
+                continue
+        # Update the defaults in case the user wants to edit their selection
+        defaults = [category in selected_categories for category in categories]
+        # Ask if the user wants to proceed with the installation
         proceed = dialog.yesno(
             "The following categories have been selected:\n\n"
             + "\n".join(selected_categories)
@@ -67,6 +83,6 @@ def interactive_dialog(categories):
             width=60,
             height=30,
         )
-        if proceed:
+        if proceed == dialog.OK:
             break
     return selected_categories
